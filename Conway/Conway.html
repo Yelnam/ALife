@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <style>
+        canvas { 
+            border: 1px solid #ccc;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            min-height: 100vh;
+            background: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+<script>
+const GRID_SIZE = 50;
+const CELL_SIZE = 10;
+let grid = [];
+
+function setup() {
+    createCanvas(GRID_SIZE * CELL_SIZE, GRID_SIZE * CELL_SIZE);
+    frameRate(10);
+    
+    // Initialize grid
+    for (let i = 0; i < GRID_SIZE; i++) {
+        grid[i] = [];
+        for (let j = 0; j < GRID_SIZE; j++) {
+            grid[i][j] = random() < 0.2;
+        }
+    }
+}
+
+function draw() {
+    background(50);
+    drawGrid();
+    updateGrid();
+}
+
+function drawGrid() {
+    noStroke();
+    for (let i = 0; i < GRID_SIZE; i++) {
+        for (let j = 0; j < GRID_SIZE; j++) {
+            if (grid[i][j]) {
+                fill(255);
+                rect(i * CELL_SIZE + 1, j * CELL_SIZE + 1, 
+                     CELL_SIZE - 2, CELL_SIZE - 2);
+            }
+        }
+    }
+}
+
+function countNeighbors(x, y) {
+    let count = 0;
+    for (let i = -1; i <= 1; i++) {
+        for (let j = -1; j <= 1; j++) {
+            if (i === 0 && j === 0) continue;
+            const newX = (x + i + GRID_SIZE) % GRID_SIZE;
+            const newY = (y + j + GRID_SIZE) % GRID_SIZE;
+            if (grid[newX][newY]) count++;
+        }
+    }
+    return count;
+}
+
+function updateGrid() {
+    const newGrid = grid.map(arr => [...arr]);
+    
+    for (let i = 0; i < GRID_SIZE; i++) {
+        for (let j = 0; j < GRID_SIZE; j++) {
+            const neighbors = countNeighbors(i, j);
+            if (grid[i][j]) {
+                newGrid[i][j] = neighbors === 2 || neighbors === 3;
+            } else {
+                newGrid[i][j] = neighbors === 3;
+            }
+        }
+    }
+    
+    grid = newGrid;
+}
+
+function mousePressed() {
+    const i = floor(mouseX / CELL_SIZE);
+    const j = floor(mouseY / CELL_SIZE);
+    if (i >= 0 && i < GRID_SIZE && j >= 0 && j < GRID_SIZE) {
+        grid[i][j] = !grid[i][j];
+    }
+}
+</script>
+</body>
+</html>
